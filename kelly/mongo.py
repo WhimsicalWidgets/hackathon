@@ -12,6 +12,10 @@ class VersionHistory(BaseModel):
     prompt: str
 
 
+class PromptView(BaseModel):
+    content: str
+
+
 class Prompt(Document):
     content: str
     content_embeddings: List[float]
@@ -72,8 +76,8 @@ class MongoQuery(BaseModel):
 
 class VectorSearchQuery(BaseModel):
     index: str = Field(default="vector_index")
-    path: str = Field(default="content_embedding")
-    filter: Optional[dict] = {}
+    path: str = Field(default="content_embeddings")
+    # filter: Optional[dict] = {}
     queryVector: List[float]
     numCandidates: int = Field(default=200)
     limit: int = Field(default=10)

@@ -1,5 +1,6 @@
 import pytest
 
+from kelly.mongo import Prompt, PromptView
 from kelly.poc import generate_embeddings, app, mongo_insert_prompt, init_mongo, search_prompt_content
 
 
@@ -39,7 +40,15 @@ def test_generate_embeddings():
 @pytest.mark.asyncio
 async def test_insert():
     await init_mongo()
-    mongo_insert_prompt('Prompt!')
+    await mongo_insert_prompt('Prompt!')
+    print(await Prompt.find_one().to_list())
+
+
+@pytest.mark.asyncio
+async def test_find():
+    await init_mongo()
+    # .project(PromptView)
+    print(await Prompt.find().to_list())
 
 
 @pytest.mark.asyncio

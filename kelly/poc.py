@@ -8,7 +8,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import MongoClient
 from quart import Quart
 
-from kelly.mongo import Prompt, VectorSearchQuery
+from kelly.mongo import Prompt, VectorSearchQuery, PromptView
 
 TOGETHER_API_KEY = '62584312b992b79e3e76c031ff115c6a10e72ab9d222a06266b7c2c55a6961e6'
 MONGODB_URI = "mongodb+srv://hackers:aicampers@hackathon.zquobpp.mongodb.net/?retryWrites=true&w=majority&appName=hackathon"
@@ -18,10 +18,10 @@ mongodb_client = MongoClient(MONGODB_URI)
 # vector_store = MongoDBAtlasVectorSearch(mongodb_client)
 
 
-def mongo_insert_prompt(content):
+async def mongo_insert_prompt(content):
     embeddings = generate_embeddings([content])[0]
     prompt = Prompt(content=content, content_embeddings=embeddings)
-    prompt.insert()
+    await prompt.insert()
 
 
 app = Quart(__name__)
@@ -72,22 +72,15 @@ def generate_embeddings(input_texts: List[str]) -> List[List[float]]:
         input=input_texts,
         model=embedding_model_string,
     )
-    return [x.embedding for x in outputs.data]
+    return [x.embedding + x.embedding for x in outputs.data]
 
 
-async def search_prompt_content(content):
+async def search_prompt_content(content) -> List[PromptView]:
     embeddings = generate_embeddings([content])[0]
     query = VectorSearchQuery(queryVector=embeddings)
     agg = [
         {
-            '$vectorSearch': {
-                'index': query.index,
-                'path': query.path,
-                'filter': query.filter,
-                'queryVector': query.queryVector,
-                'numCandidates': query.numCandidates,
-                'limit': query.limit
-            }
+            '$vectorSearch': query.model_dump(),
         },
         {
             '$project': {
@@ -100,7 +93,7 @@ async def search_prompt_content(content):
             },
         }
     ]
-    return await Prompt.aggregate(agg).to_list()
+    return await Prompt.aggregate(agg).p
 
 
 if __name__ == '__main__':
