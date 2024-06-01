@@ -56,3 +56,7 @@ async def test_search():
     await init_mongo()
     results = await search_prompt_content('prompt')
     print(results)
+
+
+if __name__ == '__main__':
+    pytest.main()

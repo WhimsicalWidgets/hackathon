@@ -86,7 +86,6 @@ async def search_prompt_content(content) -> List[PromptView]:
             '$project': {
                 '_id': 0,
                 'content': 1,
-                'content_embeddings': 1,
                 'score': {
                     '$meta': 'vectorSearchScore',
                 },
@@ -94,7 +93,8 @@ async def search_prompt_content(content) -> List[PromptView]:
         }
     ]
     print(agg)
-    return await Prompt.aggregate(agg).to_list()
+    size_aggregate = [{'$sample': {'size': 1}}]
+    return await Prompt.aggregate(size_).to_list()
 
 
 if __name__ == '__main__':
