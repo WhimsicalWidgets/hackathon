@@ -92,9 +92,20 @@ async def search_prompt_content(content) -> List[PromptView]:
             },
         }
     ]
+    agg = [
+        {
+            "$vectorSearch": {
+                "index": "vector_index",
+                "path": "content_embeddings",
+                "queryVector": embeddings,
+                "numCandidates": 20,
+                "limit": 10,
+            }
+        }
+    ]
     print(agg)
     size_aggregate = [{'$sample': {'size': 1}}]
-    return await Prompt.aggregate(size_).to_list()
+    return await Prompt.aggregate(agg).to_list()
 
 
 if __name__ == '__main__':
