@@ -93,7 +93,8 @@ async def search_prompt_content(content) -> List[PromptView]:
             },
         }
     ]
-    return await Prompt.aggregate(agg).p
+    print(agg)
+    return await Prompt.aggregate(agg).to_list()
 
 
 if __name__ == '__main__':
